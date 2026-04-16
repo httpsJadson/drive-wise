@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -11,6 +12,8 @@ import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class VehiclesService {
+  private readonly logger = new Logger(VehiclesService.name);
+
   constructor(
     private readonly prismaService: PrismaService,
   ) {}
@@ -32,8 +35,13 @@ export class VehiclesService {
 
   async create(createVehicleDto: CreateVehicleDto) {
     try {
+      const category = this.normalizeCategory(createVehicleDto.category as string);
+
       return await this.prismaService.vehicle.create({
-        data: createVehicleDto,
+        data: {
+          ...createVehicleDto,
+          category,
+        },
         select: this.vehicleSelect,
       });
     } catch (error) {
@@ -140,11 +148,23 @@ export class VehiclesService {
     }
   }
 
+  private normalizeCategory(category: string): $Enums.Category {
+    const normalized = category.toUpperCase();
+
+    if (!this.isValidCategory(normalized)) {
+      throw new BadRequestException(`Category "${category}" is invalid`);
+    }
+
+    return normalized as $Enums.Category;
+  }
+
   private isValidCategory(category: string): category is $Enums.Category {
     return Object.values($Enums.Category).includes(category as $Enums.Category);
   }
 
   private handlePrismaError(error: unknown, action: string): never {
+    this.logger.error(`Error on ${action}`, error as Error);
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2002':
@@ -153,13 +173,25 @@ export class VehiclesService {
           throw new NotFoundException('Vehicle not found');
         default:
           throw new InternalServerErrorException(
-            `Prisma error on ${action}: ${error.code}`,
+            `Prisma error on ${action}: ${error.message}`,
           );
       }
     }
 
+    if (error instanceof Prisma.PrismaClientValidationError) {
+      throw new BadRequestException(error.message);
+    }
+
+    if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+      throw new InternalServerErrorException(error.message);
+    }
+
     if (error instanceof NotFoundException) {
       throw error;
+    }
+
+    if (error instanceof Error) {
+      throw new InternalServerErrorException(error.message);
     }
 
     throw new InternalServerErrorException(
