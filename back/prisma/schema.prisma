@@ -34,4 +34,5 @@ enum Category {
   COUPE
   VAN
   ELECTRIC
+  MOTO
 }
