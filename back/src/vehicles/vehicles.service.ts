@@ -148,6 +148,23 @@ export class VehiclesService {
     }
   }
 
+  async removeAny(year: number, category?: string) {
+    try {
+      const normalizedCategory = category ? this.normalizeCategory(category) : undefined;
+
+      return await this.prismaService.vehicle.deleteMany({
+        where: {
+          year,
+          category: {
+            not: normalizedCategory,
+          },
+        },
+      });
+    } catch (error) {
+      this.handlePrismaError(error, 'removeAny');
+    }
+  }
+
   private normalizeCategory(category: string): $Enums.Category {
     const normalized = category.toUpperCase();
 
