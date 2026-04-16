@@ -51,4 +51,12 @@ export class VehiclesController {
   remove(@Param('id') id: string) {
     return this.vehiclesService.remove(+id);
   }
+
+  @Delete('year/:year/category/:category')
+  removeAny(
+    @Param('year', ParseIntPipe) year: number,
+    @Param('category') category?: string,
+  ) {
+    return this.vehiclesService.removeAny(year, category);
+  }
 }
