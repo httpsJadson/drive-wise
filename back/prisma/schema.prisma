@@ -36,3 +36,19 @@ enum Category {
   ELECTRIC
   MOTO
 }
+
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  email     String   @unique
+  password  String
+  jobRole   JobRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum JobRole{
+  SUPERUSER
+  ADMIN
+  USER
+}
