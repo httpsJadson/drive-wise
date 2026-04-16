@@ -20,6 +20,8 @@ model Vehicle {
   consumptionHwyE  Float?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  consumptionCityD Float?
+  consumptionHwyD  Float?
 
   @@index([brand, model])
 }
