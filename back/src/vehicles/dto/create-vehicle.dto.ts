@@ -1,18 +1,6 @@
 import { CreateVehicleRequest } from '../../shared/interfaces/vehicle.interface';
 
 export class CreateVehicleDto implements CreateVehicleRequest {
-  /**
-  brand            String
-  model            String
-  version          String?
-  year             Int
-  category         Category
-  consumptionCityG Float?
-  consumptionHwyG  Float?
-  consumptionCityE Float?
-  consumptionHwyE  Float?
-   */
-
   brand: string;
   model: string;
   version?: string;
@@ -22,4 +10,18 @@ export class CreateVehicleDto implements CreateVehicleRequest {
   consumptionHwyG?: number;
   consumptionCityE?: number;
   consumptionHwyE?: number;
+
+  constructor(data?: Partial<CreateVehicleRequest>) {
+    if (data) {
+      this.brand = data.brand!;
+      this.model = data.model!;
+      this.version = data.version;
+      this.year = data.year!;
+      this.category = data.category!;
+      this.consumptionCityG = data.consumptionCityG;
+      this.consumptionHwyG = data.consumptionHwyG;
+      this.consumptionCityE = data.consumptionCityE;
+      this.consumptionHwyE = data.consumptionHwyE;
+    }
+  }
 }

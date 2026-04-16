@@ -4,4 +4,9 @@ import { UpdateVehicleRequest } from '../../shared/interfaces/vehicle.interface'
 
 export class UpdateVehicleDto
   extends PartialType(CreateVehicleDto)
-  implements UpdateVehicleRequest {}
+  implements UpdateVehicleRequest {
+
+  constructor(data?: Partial<UpdateVehicleRequest>) {
+    super(data);
+  }
+}
