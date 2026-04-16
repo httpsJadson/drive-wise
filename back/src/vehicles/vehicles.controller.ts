@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
@@ -15,6 +15,26 @@ export class VehiclesController {
   @Get()
   findAll() {
     return this.vehiclesService.findAll();
+  }
+
+  @Get('brand/:brand')
+  findAllByBrand(@Param('brand') brand: string) {
+    return this.vehiclesService.findAllByBrand(brand);
+  }
+
+  @Get('year/:year')
+  findAllByYear(@Param('year', ParseIntPipe) year: number) {
+    return this.vehiclesService.findAllByYear(year);
+  }
+
+  @Get('model/:model')
+  findAllByModel(@Param('model') model: string) {
+    return this.vehiclesService.findAllByModel(model);
+  }
+
+  @Get('category/:category')
+  findAllByCategory(@Param('category') category: string) {
+    return this.vehiclesService.findAllByCategory(category);
   }
 
   @Get(':id')

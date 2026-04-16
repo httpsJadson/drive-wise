@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Max, MaxLength, Min } from 'class-validator';
 import { Category } from '../vehicle.category.enum';
+import { $Enums } from '@prisma/client';
 
 export class CreateVehicleDto {
   @ApiProperty({
@@ -44,7 +45,7 @@ export class CreateVehicleDto {
   })
   @IsNotEmpty()
   @IsEnum(Category)
-  category: Category;
+  category: $Enums.Category;
 
   @ApiPropertyOptional({
     description: 'City consumption with gasoline',
