@@ -9,6 +9,8 @@ import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { $Enums, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import { SearchVehicleDto } from '../common/dto/searchVehicle.dto';
+import { OrderDirection } from '../common/enum/orderVehicle.enum';
 
 @Injectable()
 export class VehiclesService {
@@ -49,64 +51,66 @@ export class VehiclesService {
     }
   }
 
-  async findAll() {
-    try {
-      return await this.prismaService.vehicle.findMany({
-        select: this.vehicleSelect,
+  async findAll(query: SearchVehicleDto) {
+    const { 
+      search, 
+      category, 
+      year, 
+      page = 1, 
+      limit = 20, 
+      orderBy, 
+      orderDir = 'asc' 
+    } = query;
+
+    const skip = (page - 1) * limit;
+
+    // 1. Inicializamos o filtro básico
+    const where: Prisma.VehicleWhereInput = { AND: [] };
+
+    // 2. Se houver pesquisa, "quebramos" em palavras
+    if (search) {
+      const keywords = search.split(' ').filter(word => word.length > 0);
+
+      // Para cada palavra, ela deve estar presente em algum campo (Modelo, Marca ou Ano)
+      keywords.forEach(word => {
+        const isNumber = !isNaN(Number(word));
+        
+        (where.AND as Prisma.VehicleWhereInput[]).push({
+          OR: [
+            { model: { contains: word, mode: 'insensitive' } },
+            { brand: { contains: word, mode: 'insensitive' } },
+            // Se for número, tenta casar com o ano exato
+            ...(isNumber ? [{ year: Number(word) }] : []),
+          ],
+        });
       });
-    } catch (error) {
-      this.handlePrismaError(error, 'findAll');
     }
-  }
 
-  async findAllByBrand(brand: string) {
-    try {
-      return await this.prismaService.vehicle.findMany({
-        where: { brand },
-        select: this.vehicleSelect,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'findAllByBrand');
-    }
-  }
+    // 3. Filtros fixos (se vierem de selects específicos no front)
+    if (category) (where.AND as any).push({ category });
+    if (year) (where.AND as any).push({ year });
 
-  async findAllByModel(model: string) {
-    try {
-      return await this.prismaService.vehicle.findMany({
-        where: { model },
-        select: this.vehicleSelect,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'findAllByModel');
-    }
-  }
+    // 4. Query no Banco
+    const [data, total] = await Promise.all([
+      this.prismaService.vehicle.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: orderBy 
+          ? { [orderBy]: orderDir } 
+          : [{ brand: 'asc' }, { model: 'asc' }],
+      }),
+      this.prismaService.vehicle.count({ where }),
+    ]);
 
-  async findAllByYear(year: number) {
-    try {
-      return await this.prismaService.vehicle.findMany({
-        where: { year },
-        select: this.vehicleSelect,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'findAllByYear');
-    }
-  }
-
-  async findAllByCategory(category: string) {
-    try {
-      const normalizedCategory = category.toUpperCase();
-
-      if (!this.isValidCategory(normalizedCategory)) {
-        throw new NotFoundException(`Category "${category}" not found`);
-      }
-
-      return await this.prismaService.vehicle.findMany({
-        where: { category: normalizedCategory as $Enums.Category },
-        select: this.vehicleSelect,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'findAllByCategory');
-    }
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number) {

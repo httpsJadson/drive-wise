@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Max, MaxLength, Min } from 'class-validator';
-import { Category } from '../vehicle.category.enum';
+import { Category } from '../../common/enum/vehicle.category.enum';
 import { $Enums } from '@prisma/client';
 
 export class CreateVehicleDto {
