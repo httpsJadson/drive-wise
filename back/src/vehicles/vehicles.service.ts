@@ -33,15 +33,16 @@ export class VehiclesService {
     consumptionHwyE: true,
     consumptionHwyD: true,
     consumptionCityD: true,
-  } as const;
+  };
 
   async create(createVehicleDto: CreateVehicleDto) {
     try {
       const category = this.normalizeCategory(createVehicleDto.category as string);
-
+      const fullName = `${createVehicleDto.brand} ${createVehicleDto.model} ${createVehicleDto.version} ${createVehicleDto.year} ${category}`;
       return await this.prismaService.vehicle.create({
         data: {
           ...createVehicleDto,
+          fullName,
           category,
         },
         select: this.vehicleSelect,
@@ -110,6 +111,7 @@ export class VehiclesService {
     const [data, total] = await Promise.all([
       this.prismaService.vehicle.findMany({
         where,
+        select: this.vehicleSelect,
         skip,
         take: limit,
         orderBy: search

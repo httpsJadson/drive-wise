@@ -1,8 +1,3 @@
-export enum OrderDirection {
-  ASC = 'asc',
-  DESC = 'desc',
-}
-
 export enum VehicleOrderFields {
   MODEL = 'model',
   BRAND = 'brand',
