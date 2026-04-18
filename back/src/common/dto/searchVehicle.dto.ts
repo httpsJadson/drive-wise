@@ -1,10 +1,12 @@
 import { IsOptional, IsString, IsInt, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Category } from '../enum/vehicle.category.enum';
-import { OrderDirection, VehicleOrderFields } from '../enum/orderVehicle.enum';
+import { VehicleOrderFields } from '../enum/orderVehicle.enum';
+import { OrderDirection } from '../enum/order.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger/dist/decorators/api-property.decorator';
+import { PaginationDto } from './pagination.dto';
 
-export class SearchVehicleDto {
+export class SearchVehicleDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Termo de busca (marca, modelo ou ano)', example: 'Toyota Corolla 2024' })
   @IsOptional()
   @IsString()
@@ -22,25 +24,10 @@ export class SearchVehicleDto {
   @IsInt()
   year?: number;
 
-  @ApiPropertyOptional({ default: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  page?: number = 1;
-
-  @ApiPropertyOptional({ default: 20 })
-  @IsOptional()
-  @Type(() => Number)
-  limit?: number = 20;
-
   @ApiPropertyOptional({ enum: VehicleOrderFields })
   @IsOptional()
   @IsEnum(VehicleOrderFields)
   orderBy?: VehicleOrderFields = VehicleOrderFields.MODEL;
-
-  @ApiPropertyOptional({ enum: OrderDirection, default: 'asc' })
-  @IsOptional()
-  @IsEnum(OrderDirection)
-  orderDir?: OrderDirection = OrderDirection.ASC;
 
   @ApiPropertyOptional({ description: 'Filtrar veículos sem consumo cadastrado (todos os consumos nulos)', example: true })
   @IsOptional()
