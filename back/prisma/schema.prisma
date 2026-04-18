@@ -8,20 +8,24 @@ datasource db {
 }
 
 model Vehicle {
-  id               Int      @id @default(autoincrement())
-  brand            String
-  model            String
-  version          String?
-  year             Int
-  category         Category
+  id Int @id @default(autoincrement())
+
+  fullName String? @unique
+  brand    String
+  model    String
+  version  String?
+  year     Int
+  category Category
+
   consumptionCityG Float?
   consumptionHwyG  Float?
   consumptionCityE Float?
   consumptionHwyE  Float?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
   consumptionCityD Float?
   consumptionHwyD  Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([brand, model])
 }
@@ -47,7 +51,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-enum JobRole{
+enum JobRole {
   SUPERUSER
   ADMIN
   USER

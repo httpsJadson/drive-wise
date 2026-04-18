@@ -10,7 +10,6 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { $Enums, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { SearchVehicleDto } from '../common/dto/searchVehicle.dto';
-import { OrderDirection } from '../common/enum/orderVehicle.enum';
 
 @Injectable()
 export class VehiclesService {
@@ -22,6 +21,7 @@ export class VehiclesService {
 
   private readonly vehicleSelect = {
     id: true,
+    fullName: true,
     brand: true,
     model: true,
     version: true,
@@ -67,21 +67,14 @@ export class VehiclesService {
     // 1. Inicializamos o filtro básico
     const where: Prisma.VehicleWhereInput = { AND: [] };
 
-    // 2. Se houver pesquisa, "quebramos" em palavras
+    // 2. Se houver pesquisa, busca no fullName independente da ordem das palavras
     if (search) {
       const keywords = search.split(' ').filter(word => word.length > 0);
-
-      // Para cada palavra, ela deve estar presente em algum campo (Modelo, Marca ou Ano)
+      
+      // Cada palavra deve estar presente no fullName (independente da ordem)
       keywords.forEach(word => {
-        const isNumber = !isNaN(Number(word));
-        
         (where.AND as Prisma.VehicleWhereInput[]).push({
-          OR: [
-            { model: { contains: word, mode: 'insensitive' } },
-            { brand: { contains: word, mode: 'insensitive' } },
-            // Se for número, tenta casar com o ano exato
-            ...(isNumber ? [{ year: Number(word) }] : []),
-          ],
+          fullName: { contains: word, mode: 'insensitive' },
         });
       });
     }
@@ -96,9 +89,11 @@ export class VehiclesService {
         where,
         skip,
         take: limit,
-        orderBy: orderBy 
-          ? { [orderBy]: orderDir } 
-          : [{ brand: 'asc' }, { model: 'asc' }],
+        orderBy: search
+          ? [{ fullName: 'asc' }]
+          : orderBy 
+            ? { [orderBy]: orderDir } 
+            : [{ brand: 'asc' }, { model: 'asc' }],
       }),
       this.prismaService.vehicle.count({ where }),
     ]);

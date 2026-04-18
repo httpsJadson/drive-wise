@@ -1,4 +1,3 @@
-// src/vehicles/dto/search-vehicle.dto.ts
 import { IsOptional, IsString, IsInt, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Category } from '../enum/vehicle.category.enum';
