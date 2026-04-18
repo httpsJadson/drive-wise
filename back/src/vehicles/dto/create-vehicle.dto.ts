@@ -46,14 +46,6 @@ export class CreateVehicleDto {
   @IsNotEmpty()
   @IsEnum(Category)
   category: $Enums.Category;
-
-  @ApiPropertyOptional({
-    description: 'Vehicle Full name to search',
-    example: 'Toyota Corolla XRS 2023 Sedan'
-  })
-  @IsString()
-  @IsOptional()
-  fullName?: string;
   
   @ApiPropertyOptional({
     description: 'City consumption with gasoline',
