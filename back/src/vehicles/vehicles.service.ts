@@ -59,7 +59,9 @@ export class VehiclesService {
       page = 1, 
       limit = 20, 
       orderBy, 
-      orderDir = 'asc' 
+      orderDir = 'asc',
+      noConsumption,
+      noFullName
     } = query;
 
     const skip = (page - 1) * limit;
@@ -83,7 +85,28 @@ export class VehiclesService {
     if (category) (where.AND as any).push({ category });
     if (year) (where.AND as any).push({ year });
 
-    // 4. Query no Banco
+    // 4. Filtro para veículos sem consumo (todos os consumos nulos)
+    if (noConsumption) {
+      (where.AND as Prisma.VehicleWhereInput[]).push({
+        AND: [
+          { consumptionCityG: null },
+          { consumptionHwyG: null },
+          { consumptionCityE: null },
+          { consumptionHwyE: null },
+          { consumptionCityD: null },
+          { consumptionHwyD: null },
+        ],
+      });
+    }
+
+    // 5. Filtro para veículos sem fullName
+    if (noFullName) {
+      (where.AND as Prisma.VehicleWhereInput[]).push({
+        fullName: null,
+      });
+    }
+
+    // 6. Query no Banco
     const [data, total] = await Promise.all([
       this.prismaService.vehicle.findMany({
         where,

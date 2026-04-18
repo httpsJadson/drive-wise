@@ -10,7 +10,7 @@ export class SearchVehicleDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Categoria do veículo', enum: ['SUV', 'HATCH', 'SEDAN'] })
+  @ApiPropertyOptional({ description: 'Categoria do veículo', enum: Category })
   @IsOptional()
   @IsString()
   @IsEnum(Category)
@@ -41,4 +41,14 @@ export class SearchVehicleDto {
   @IsOptional()
   @IsEnum(OrderDirection)
   orderDir?: OrderDirection = OrderDirection.ASC;
+
+  @ApiPropertyOptional({ description: 'Filtrar veículos sem consumo cadastrado (todos os consumos nulos)', example: true })
+  @IsOptional()
+  @Type(() => Boolean)
+  noConsumption?: boolean;
+
+  @ApiPropertyOptional({ description: 'Filtrar veículos sem fullName cadastrado', example: true })
+  @IsOptional()
+  @Type(() => Boolean)
+  noFullName?: boolean;
 }
