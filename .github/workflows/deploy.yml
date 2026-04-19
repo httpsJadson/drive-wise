@@ -32,6 +32,6 @@ jobs:
             npm run build
 
             echo "🔄 Reiniciando app..."
-            pm2 restart api-drivewise
+            pm2 reload api-drivewise
 
             echo "✅ Deploy finalizado"

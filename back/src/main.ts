@@ -9,11 +9,7 @@ async function bootstrap() {
   // Configurar CORS para aceitar requisições do frontend
   app.enableCors({
     origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      // process.env.PRODUCTION_URL,
-      // Adicione URLs de produção aqui conforme necessário
-      // 'https://seu-frontend.com',
+      process.env.FRONT_END_URL,
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -29,10 +25,10 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('DriveWise: Dirija com sabedoria API')
+    .setTitle('DriveWise: Dirija com sabedoria')
     .setDescription('Documentação da API de DriveWise: Dirija com sabedoria')
-    .setVersion('1.0')
-    .addBearerAuth() // remove se não usar JWT
+    .setVersion('1.3')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
