@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /www/drive-wise/back
+            cd www/drive-wise/back
 
             echo "📥 Atualizando código..."
             git pull origin main
