@@ -13,8 +13,6 @@ import { SearchVehicleDto } from '../common/dto/searchVehicle.dto';
 
 @Injectable()
 export class VehiclesService {
-  private readonly logger = new Logger(VehiclesService.name);
-
   constructor(
     private readonly prismaService: PrismaService,
   ) {}
@@ -34,6 +32,8 @@ export class VehiclesService {
     consumptionHwyD: true,
     consumptionCityD: true,
   };
+
+  private readonly logger = new Logger(VehiclesService.name);
 
   async create(createVehicleDto: CreateVehicleDto) {
     try {
