@@ -48,7 +48,7 @@ export class AuthService {
       return await this.createTokens(user as User, payload);
 
     } else {
-      this.notFound();
+      this.unauthorized();
     }
 
   }

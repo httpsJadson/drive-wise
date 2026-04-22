@@ -1,9 +1,16 @@
+import { Routes, Route } from 'react-router-dom';
+import { Calculator } from './pages/Calculator';
+import { Login } from './pages/Login';
+import { NotFound } from './pages/NotFound';
+
 function App() {
   return (
-    <h1 className="text-3xl font-bold text-blue-600 underline bg-red-900">
-      Drive Wise - Setup OK!
-    </h1>
-  )
+    <Routes>
+      <Route path="/" element={<Calculator />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
