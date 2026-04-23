@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { Calculator } from './pages/Calculator';
-import { Login } from './pages/Login';
+import Login from './pages/Login';
 import { NotFound } from './pages/NotFound';
 
 function App() {
