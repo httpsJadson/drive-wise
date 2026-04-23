@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import type {Vehicle}  from '../types/vehicles';
-import { api } from '../services/api';
+import { VehiclesService } from '../services/vehicles.api';
 
 interface VehicleSelectProps {
   onSelect: (vehicle: Vehicle) => void;
@@ -35,19 +35,9 @@ export function VehicleSelect({ onSelect }: VehicleSelectProps) {
 
       setIsLoading(true);
       try {
-        const data = await api.get(`/vehicles?search=${debouncedSearch}`);
-        
-        const rawList = Array.isArray(data) ? data : data.data || [];
-
-        // Mapeando com o N maiúsculo correto do seu backend
-        const formattedList = rawList.map((vehicle: any) => ({
-          id: vehicle.id,
-          fullName: vehicle.fullName, 
-        }));
-        
-        setResults(formattedList);
+        const vehicles = await VehiclesService.search(debouncedSearch);
+        setResults(vehicles);
         setIsDropdownOpen(true);
-        
       } catch (error) {
         console.error('Erro ao buscar veículos na API real', error);
         setResults([]);
