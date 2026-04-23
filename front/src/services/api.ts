@@ -2,7 +2,7 @@ import { getHeaders } from './utils/getHeaders';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL_BASE || 'http://localhost:3000';
 
-let isRefreshing = false; // "Cadeado": Impede múltiplas chamadas de refresh ao mesmo tempo
+let isRefreshing = false;
 let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: any) => void }> = []; 
 
 const processQueue = (error: Error | null, token: string | null = null) => {
@@ -21,10 +21,8 @@ const fetchWithAuth = async <T>(
   
   let response = await fetch(`${API_BASE_URL}${endpoint}`, options);
 
-  // Se a requisição deu erro 401 (Não Autorizado) e ela exigia token...
   if (response.status === 401 && requireAuth) {
-    
-    // Se ainda NÃO estamos renovando o token, assume a liderança!
+
     if (!isRefreshing) {
       isRefreshing = true;
 
@@ -69,8 +67,7 @@ const fetchWithAuth = async <T>(
         throw new Error('Sessão totalmente expirada. Refaça o login.');
       }
     } else {
-      // Se JÁ TEMOS uma requisição de refresh acontecendo, congela essa chamada aqui
-      // e coloca ela na fila de espera.
+      
       return new Promise<T>(async (resolve, reject) => {
         failedQueue.push({
           resolve: async (newToken: string) => {
@@ -90,7 +87,6 @@ const fetchWithAuth = async <T>(
     }
   }
 
-  // Tratamento de erros normais (400, 404, 500...)
   if (!response.ok) {
     throw new Error(`Erro: ${response.statusText}`);
   }

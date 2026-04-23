@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import type {Vehicle}  from '../types/vehicles';
-import { VehiclesService } from '../services/vehicles.api';
+import { VehiclesService } from '../services/vehicles.service';
 
 interface VehicleSelectProps {
   onSelect: (vehicle: Vehicle) => void;
