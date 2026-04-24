@@ -5,11 +5,7 @@ import { type Vehicle, type VehicleCreate } from '../types/vehicles';
 export const VehiclesService = {
 
   search: async (searchTerm: string): Promise<Vehicle[]> => {
-    // Adicionamos 'true' para exigir autenticação
-    // Usamos <any> para permitir o acesso a .data na linha abaixo
     const data = await api.get<any>(`/vehicles?search=${searchTerm}`, true);
-    
-    // Garantimos que retornamos um array e mapeamos para o tipo Vehicle
     const rawList = Array.isArray(data) ? data : data.data || [];
 
     return rawList.map((vehicle: any) => ({
