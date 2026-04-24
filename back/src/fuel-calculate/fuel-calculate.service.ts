@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { calcularConsumoEReais } from '../common/utils/calc';
+import { calcularConsumoEReais } from '../common/utils/fuelCalculate.utils';
 
 @Injectable()
 export class FuelCalculateService {
