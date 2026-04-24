@@ -7,23 +7,42 @@ export class FuelCalculateService {
     return 'This action adds a new fuelCalculate';
   }
 
-  async realizarTesteMockado() {
-    // Dados para o cálculo
-    const distancia = 318; 
-    const precos = { gasolina: 6, etanol: 3.90, diesel: 6.00 };
-    const medias = { gasolina: 11, etanol: 7, diesel: 12 };
+  async runMockedByTest() {
+    
+    const distance = 318; 
+    
+    const prices = { 
+      gasoline: 6.00, 
+      ethanol: 3.90, 
+      diesel: 6.00 
+    };
 
-    // Chama a função do calc.ts
-    const resultado = calcularConsumoEReais(distancia, precos, medias);
+    const consumptionMedia = { 
+      consumtionMediaG: 11, 
+      consumtionMediaE: 7, 
+      consumtionMediaD: 12 
+    };
 
-    console.log(JSON.stringify(resultado, null, 2));
+  
+    const result = calcularConsumoEReais(
+      distance, 
+      prices, 
+      { 
+        gasoline: consumptionMedia.consumtionMediaG, 
+        ethanol: consumptionMedia.consumtionMediaE, 
+        diesel: consumptionMedia.consumtionMediaD 
+      }
+    );
 
     return {
-      status: "Sucesso",
-      mensagem: "Cálculo de combustível (Gasolina, Etanol e Diesel)",
-      resultado: {
-        distanciaPercorrida: `${distancia} km`,
-        detalhes: resultado
+      status: "Success",
+      message: "Fuel calculation (Gasoline, Ethanol and Diesel)",
+      result: {
+        distanceTraveled: `${distance} km`,
+        consumtionMediaG: consumptionMedia.consumtionMediaG,
+        consumtionMediaE: consumptionMedia.consumtionMediaE,
+        consumtionMediaD: consumptionMedia.consumtionMediaD,
+        details: result // Como a calc.ts agora é em inglês, passamos direto!
       }
     };
   }
