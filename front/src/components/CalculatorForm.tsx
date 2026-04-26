@@ -16,18 +16,19 @@ export function CalculatorForm({
   onTouchMove,
   onTouchEnd
 }: CalculatorFormProps) {
+  const [origem, setOrigem] = useState('');
+  const [destino, setDestino] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
-      onSubmit({ selectedVehicleId });
+      onSubmit({ origem, destino, selectedVehicleId });
     }
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-white/90 backdrop-blur-lg rounded-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.1)] overflow-hidden">
-      
+    <div className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-[450] rounded-lg shadow-lg overflow-hidden">
       {/* Barra de arraste visual - Apenas Mobile */}
       <div 
         className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
@@ -51,13 +52,19 @@ export function CalculatorForm({
         <input 
           type="text" 
           placeholder="Ponto de partida" 
+          name='from'
           className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          value={origem}
+          onChange={(e) => setOrigem(e.target.value)}
         />
         
         <input 
           type="text" 
           placeholder="Destino final" 
+          name='to'
           className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          value={destino}
+          onChange={(e) => setDestino(e.target.value)}
         />
         
         <VehicleSelect 
@@ -65,7 +72,7 @@ export function CalculatorForm({
         />
         
         <button 
-          type="submit" 
+          type="submit"
           className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg shadow-blue-200"
         >
           Calcular Rota

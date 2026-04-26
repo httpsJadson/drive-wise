@@ -78,6 +78,7 @@ export function VehicleSelect({ onSelect }: VehicleSelectProps) {
         className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
         placeholder="Digite o modelo do carro (ex: Toyota Corolla Cross)"
         value={searchTerm}
+        name='vehicle'
         id={selectedVehicleId?.toString()} // O ID fica invisível aqui no HTML, mas atrelado ao input
         onChange={(e) => {
           setSearchTerm(e.target.value);
