@@ -1,10 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFuelCalculateDto } from './dto/create-fuel-calculate.dto';
 import { CalculateConsumeTotal } from '../common/utils/fuelCalculate.utils';
+import { DistanceCalculate } from '../common/utils/distanceCalculate.utils';
+import { calculateMediaAutonomy } from '../common/utils/MediaAutonomy.utils';
+import { VehiclesService } from '../vehicles/vehicles.service';
+import { Vehicle } from '@prisma/client';
+
 
 @Injectable()
 export class FuelCalculateService {
-  calculate(createFuelCalculateDto: CreateFuelCalculateDto) {
-    return 'This action adds a new fuelCalculate';
+  constructor(
+    private readonly vehiclesService: VehiclesService,
+  ) {}
+
+  async calculate(createFuelCalculateDto: CreateFuelCalculateDto) {
+
+    const prices = {
+      gasoline: 6.97,
+      ethanol: 5.97,
+      diesel: 4.97,
+    }
+    const distance = await DistanceCalculate(
+      createFuelCalculateDto.from,
+      createFuelCalculateDto.to
+    );
+
+    const vehicle = await this.vehiclesService.findOne(Number(createFuelCalculateDto.vehicle));
+
+    const media = await calculateMediaAutonomy(vehicle);
+    return await CalculateConsumeTotal(distance.distance, prices, media); 
   }
 }

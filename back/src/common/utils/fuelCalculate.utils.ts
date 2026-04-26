@@ -1,26 +1,28 @@
+import { AutonomyResponse } from "./MediaAutonomy.utils";
+
 export const CalculateConsumeTotal = (
-  distanceKm: number,
+  distance: { value: number; duration: number },
   prices: { gasoline?: number; ethanol?: number; diesel?: number },
-  medias: { gasoline?: number; ethanol?: number; diesel?: number }
+  medias: AutonomyResponse
 ) => {
   const response = {
-    distance: distanceKm,
+    distance: distance,
   };
 
-  if (prices.gasoline && medias.gasoline){
-    const spendGasoline = Number((distanceKm / medias.gasoline).toFixed(2));
+  if (prices.gasoline && medias.consumtionMediaG){
+    const spendGasoline = Number((distance.value / medias.consumtionMediaG).toFixed(2));
     const TotalGasoline = Number((spendGasoline * prices.gasoline).toFixed(2));
     response['gasoline'] = { liters: spendGasoline, totalCost: TotalGasoline };
   }
 
-  if(prices.ethanol && medias.ethanol){
-    const spendEthanol = Number((distanceKm / medias.ethanol).toFixed(2));
+  if(prices.ethanol && medias.consumtionMediaE){
+    const spendEthanol = Number((distance.value / medias.consumtionMediaE).toFixed(2));
     const TotalEthanol = Number((spendEthanol * prices.ethanol).toFixed(2));
     response['ethanol'] = { liters: spendEthanol, totalCost: TotalEthanol };
   }
 
-  if(prices.diesel && medias.diesel){
-    const spendDiesel = Number((distanceKm / medias.diesel).toFixed(2));
+  if(prices.diesel && medias.consumtionMediaD){
+    const spendDiesel = Number((distance.value / medias.consumtionMediaD).toFixed(2));
     const TotalDiesel = Number((spendDiesel * prices.diesel).toFixed(2));
     response['diesel'] = { liters: spendDiesel, totalCost: TotalDiesel };
   }
