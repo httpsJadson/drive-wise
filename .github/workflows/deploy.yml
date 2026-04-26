@@ -1,37 +1,67 @@
-name: Deploy automático
+  name: Deploy automático
 
-on:
-  push:
-    branches:
-      - main
+  on:
+    push:
+      branches:
+        - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  jobs:
+    deploy:
+      runs-on: ubuntu-latest
 
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd www/drive-wise/back
+      steps:
+        - name: Deploy via SSH
+          uses: appleboy/ssh-action@v1.0.3
+          with:
+            host: ${{ secrets.SERVER_IP }}
+            username: ${{ secrets.SERVER_USER }}
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+              # --- DEPLOY BACKEND ---
+              cd www/drive-wise/back
+              
+              echo "📥 [BACK] Atualizando código..."
+              git pull origin main
 
-            echo "📥 Atualizando código..."
-            git pull origin main
+              echo "📦 [BACK] Instalando dependências..."
+              npm install
 
-            echo "📦 Instalando dependências..."
-            npm install
+              echo "⚙️ [BACK] Gerando Prisma..."
+              npx prisma generate
 
-            echo "⚙️ Gerando Prisma..."
-            npx prisma generate
+              echo "🔨 [BACK] Gerando o Build..."
+              npm run build
 
-            echo "🔨 Gerando o Build do projeto..."
-            npm run build
+              echo "🔄 [BACK] Reiniciando api..."
+              pm2 reload api-drivewise
 
-            echo "🔄 Reiniciando app..."
-            pm2 reload api-drivewise
+              # --- CONFIGURAÇÃO DE VARIÁVEIS ---
+              # Ajuste estes caminhos conforme a sua realidade
+              REPO_PATH="/root/www/drive-wise/front"
+              PUBLIC_PATH="/var/www/drivewise.jadson.cloud"
 
-            echo "✅ Deploy finalizado"
+              echo "🚀 Iniciando deploy do frontend..."
+
+              # 1. Entra na pasta do repositório em root
+              cd ../front
+
+              git pull origin main
+
+              echo "📦 Instalando dependências e gerando Build..."
+              npm install
+              npm run build
+
+              echo "🚚 Substituindo a pasta dist em /var/www..."
+              
+              # Remove a pasta antiga em /var/www para não acumular arquivos mortos
+              sudo rm -rf $PUBLIC_PATH
+              
+              # Move a pasta dist recém-criada para o local definitivo
+              # Usamos o 'cp -r' seguido de 'rm' ou apenas 'mv' se o disco permitir
+              sudo cp -r dist $PUBLIC_PATH
+
+              echo "🔐 Ajustando permissões para o Nginx..."
+              sudo chown -R www-data:www-data $PUBLIC_PATH
+              sudo chmod -R 755 $PUBLIC_PATH
+
+              echo "✅ Deploy finalizado: pasta dist movida para $PUBLIC_PATH"
