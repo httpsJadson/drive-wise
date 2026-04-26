@@ -9,16 +9,16 @@ export class FuelCalculateService {
 
   async runMockedByTest() {
     
-    const distance = 318; 
+    const distance = 26; 
     
     const prices = { 
-      gasoline: 6.00, 
+      gasoline: 6.50, 
       ethanol: 3.90, 
       diesel: 6.00 
     };
 
     const consumptionMedia = { 
-      consumtionMediaG: 11, 
+      consumtionMediaG: 35, 
       consumtionMediaE: 7, 
       consumtionMediaD: 12 
     };
