@@ -1,9 +1,6 @@
-import React from 'react';
-
 export function Header() {
   return (
     <header className="w-full h-20 bg-blue-700 shadow-md flex items-center relative overflow-hidden rounded-b-xl">
-      {/* Elemento de destaque visual: faixa diagonal sutil */}
       <div 
         className="absolute top-0 left-[-10%] w-[35%] h-full bg-blue-400 transform -skew-x-12 opacity-30 pointer-events-none" 
         aria-hidden="true"
