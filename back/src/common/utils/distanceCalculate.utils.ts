@@ -8,7 +8,7 @@ import {
 export type DistanceResult = {
   distance: {
     value: number; // em km
-    duration: number; // em minutos
+    duration: number; // em segundos
   };
 };
 
@@ -83,7 +83,7 @@ export async function DistanceCalculate(
     return {
       distance: {
         value: Number((element.distance.value / 1000).toFixed(2)),
-        duration: Number((element.duration.value / 60).toFixed(2)),
+        duration: element.duration.value,
       },
     };
   } catch (error) {
