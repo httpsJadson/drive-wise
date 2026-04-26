@@ -17,8 +17,8 @@ export class FuelCalculateService {
 
     const prices = {
       gasoline: 6.97,
-      ethanol: 5.97,
-      diesel: 4.97,
+      ethanol: 4.69,
+      diesel: 7.31,
     }
     const distance = await DistanceCalculate(
       createFuelCalculateDto.from,
