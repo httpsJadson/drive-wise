@@ -57,19 +57,24 @@ export function CalculationResult({
         </div>
 
         <div className="flex flex-col gap-4">
-          {fuelTypes.map(fuel => (
-            <div key={fuel} className="bg-white/50 rounded-lg p-4 border border-gray-200">
-              <h2 className="font-bold text-lg capitalize text-blue-800">{fuel}</h2>
-              <div className="flex justify-between items-center mt-2 text-gray-700">
-                <span>Custo Total:</span>
-                <span className="font-semibold text-lg">{formatCurrency(data[fuel].totalCost)}</span>
+          {fuelTypes.map(fuel => {
+            const fuelInfo = data[fuel];
+            if (!fuelInfo) return null;
+
+            return (
+              <div key={fuel} className="bg-white/50 rounded-lg p-4 border border-gray-200">
+                <h2 className="font-bold text-lg capitalize text-blue-800">{fuel}</h2>
+                <div className="flex justify-between items-center mt-2 text-gray-700">
+                  <span>Custo Total:</span>
+                  <span className="font-semibold text-lg">{formatCurrency(fuelInfo.totalCost)}</span>
+                </div>
+                <div className="flex justify-between items-center mt-1 text-gray-600 text-sm">
+                  <span>Consumo Estimado:</span>
+                  <span>{fuelInfo.liters.toFixed(2)} litros</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center mt-1 text-gray-600 text-sm">
-                <span>Consumo Estimado:</span>
-                <span>{data[fuel].liters.toFixed(2)} litros</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <button

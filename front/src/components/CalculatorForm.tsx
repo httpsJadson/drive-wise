@@ -7,6 +7,8 @@ interface CalculatorFormProps {
   onTouchStart?: (e: React.TouchEvent) => void;
   onTouchMove?: (e: React.TouchEvent) => void;
   onTouchEnd?: () => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
 export function CalculatorForm({ 
@@ -14,7 +16,9 @@ export function CalculatorForm({
   onToggle,
   onTouchStart,
   onTouchMove,
-  onTouchEnd
+  onTouchEnd,
+  isLoading = false,
+  error = null
 }: CalculatorFormProps) {
   const [origem, setOrigem] = useState('');
   const [destino, setDestino] = useState('');
@@ -28,7 +32,7 @@ export function CalculatorForm({
   };
 
   return (
-    <div className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-[450] rounded-lg shadow-lg overflow-hidden">
+    <div className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg overflow-hidden">
       {/* Barra de arraste visual - Apenas Mobile */}
       <div 
         className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
@@ -71,11 +75,18 @@ export function CalculatorForm({
           onSelect={(vehicle) => setSelectedVehicleId(vehicle.id)} 
         />
         
+        {error && (
+          <p className="text-red-500 text-sm text-center mt-2 bg-red-100 border border-red-300 rounded-lg py-2 px-4">
+            {error}
+          </p>
+        )}
+
         <button 
           type="submit"
-          className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg shadow-blue-200"
+          disabled={isLoading}
+          className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg shadow-blue-200 disabled:bg-blue-400 disabled:cursor-not-allowed disabled:scale-100"
         >
-          Calcular Rota
+          {isLoading ? 'Calculando...' : 'Calcular Rota'}
         </button>
       </form>
     </div>
