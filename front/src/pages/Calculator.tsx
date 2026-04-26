@@ -6,7 +6,7 @@ import { useFuelCalculate } from '../hooks/useFuelCalculate';
 import { CalculationResult } from '../components/CalculationResult';
 import type { FuelCalculateResponse } from '../types/fuelCalculate';
 
-const COLLAPSED_HEIGHT = 100; // Altura visível quando o painel está recolhido
+const COLLAPSED_HEIGHT = -230; // Altura visível quando o painel está recolhido
 
 export function Calculator() {
   const [mapUrl, setMapUrl] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function Calculator() {
     const h = sheetHeight.current;
     return {
       full: 0,                           
-      half: h * 0.4,                       
+      half: h * 0.78,                       
       collapsed: h - COLLAPSED_HEIGHT    
     };
   };
@@ -145,6 +145,8 @@ export function Calculator() {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
+                isLoading={isLoading}
+                error={error}
               />
             )}
           </div>
