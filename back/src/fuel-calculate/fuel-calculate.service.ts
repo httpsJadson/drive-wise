@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { CalculateConsumeTotal } from '../common/utils/fuelCalculate.utils';
 import { CreateFuelCalculateDto } from './dto/create-fuel-calculate.dto';
 
 @Injectable()
 export class FuelCalculateService {
-  create(createFuelCalculateDto: CreateFuelCalculateDto) {
-    return 'This action adds a new fuelCalculate';
+  calculate(createFuelCalculateDto: CreateFuelCalculateDto) {
+    return "this calculate consume total";
   }
 }

@@ -5,7 +5,12 @@ import { AuthModule } from './auth/auth.module';
 import { FuelCalculateModule } from './fuel-calculate/fuel-calculate.module';
 
 @Module({
-  imports: [VehiclesModule, UsersModule, AuthModule, FuelCalculateModule],
+  imports: [
+    VehiclesModule, 
+    UsersModule, 
+    AuthModule, 
+    FuelCalculateModule
+  ],
   controllers: [],
   providers: [],
 })
