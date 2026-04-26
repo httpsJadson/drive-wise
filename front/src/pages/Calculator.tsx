@@ -3,8 +3,10 @@ import { Header } from '../components/Header';
 import { MapContainer } from '../components/MapContainer';
 import { CalculatorForm } from '../components/CalculatorForm';
 import { useFuelCalculate } from '../hooks/useFuelCalculate';
+import { CalculationResult } from '../components/CalculationResult';
+import type { FuelCalculateResponse } from '../types/fuelCalculate';
 
-const COLLAPSED_HEIGHT = -230; 
+const COLLAPSED_HEIGHT = 100; // Altura visível quando o painel está recolhido
 
 export function Calculator() {
   const [mapUrl, setMapUrl] = useState<string | null>(null);
@@ -16,13 +18,13 @@ export function Calculator() {
   const sheetHeight = useRef(0);
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  const { calculate, isLoading, error, data: calculationResult } = useFuelCalculate();
+  const { calculate, isLoading, error, data: calculationResult, setData: setCalculationResult } = useFuelCalculate();
 
   const getAnchors = () => {
     const h = sheetHeight.current;
     return {
       full: 0,                           
-      half: h * 0.77,                       
+      half: h * 0.4,                       
       collapsed: h - COLLAPSED_HEIGHT    
     };
   };
@@ -54,6 +56,11 @@ export function Calculator() {
     } else {
       console.warn("Dados insuficientes para calcular o custo da rota. Verifique se todos os campos foram preenchidos.");
     }
+  };
+
+  const handleRecalculate = () => {
+    setCalculationResult(null);
+    setMapUrl(null); // Opcional: limpar o mapa também
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -109,7 +116,7 @@ export function Calculator() {
       <Header />
 
       <main className="grow relative overflow-hidden">
-        <MapContainer zoom={14} height="100%" mapUrl={mapUrl}/>
+        <MapContainer zoom={14} height="100%" mapUrl={mapUrl} />
 
         <div className="absolute inset-0 z-10 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4 md:items-center">
           <div 
@@ -122,13 +129,24 @@ export function Calculator() {
               transform: window.innerWidth < 768 ? `translateY(${translateY}px)` : undefined 
             }}
           >
-            <CalculatorForm 
-              onSubmit={handleCalculateRoute}
-              onToggle={handleToggle}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            />
+            {calculationResult ? (
+              <CalculationResult 
+                data={calculationResult as FuelCalculateResponse} 
+                onRecalculate={handleRecalculate}
+                onToggle={handleToggle}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              />
+            ) : (
+              <CalculatorForm 
+                onSubmit={handleCalculateRoute}
+                onToggle={handleToggle}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              />
+            )}
           </div>
         </div>
       </main>

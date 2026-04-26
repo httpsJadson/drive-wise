@@ -23,17 +23,15 @@ export const useFuelCalculate = () => {
     try {
       const result = await FuelCalculateService.calculate(fuelCalculateData);
       setData(result);
-      console.log('Resultado do cálculo:', result); // Adicionado para depuração
       return result;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Ocorreu um erro ao calcular a rota.';
       setError(errorMessage);
-      console.error('Erro no cálculo:', errorMessage); // Adicionado para depuração
       setData(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { calculate, isLoading, error, data };
+  return { calculate, isLoading, error, data, setData };
 };
