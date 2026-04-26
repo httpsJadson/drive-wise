@@ -4,17 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3001",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --port 3001"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.15.0",
     "lucide-react": "^1.8.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.14.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

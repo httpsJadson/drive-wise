@@ -7,8 +7,8 @@ export class FuelCalculateController {
   constructor(private readonly fuelCalculateService: FuelCalculateService) {}
 
   @Post()
-  create(@Body() createFuelCalculateDto: CreateFuelCalculateDto) {
-    return this.fuelCalculateService.create(createFuelCalculateDto);
+  calculate(@Body() createFuelCalculateDto: CreateFuelCalculateDto) {
+    return this.fuelCalculateService.calculate(createFuelCalculateDto);
   }
 
 }
