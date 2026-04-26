@@ -35,33 +35,29 @@
               echo "🔄 [BACK] Reiniciando api..."
               pm2 reload api-drivewise
 
-              # --- CONFIGURAÇÃO DE VARIÁVEIS ---
-              # Ajuste estes caminhos conforme a sua realidade
+              # Use caminhos COMPLETOS (ex: /root/www/...)
               REPO_PATH="/root/www/drive-wise/front"
-              PUBLIC_PATH="/var/www/drivewise.jadson.cloud"
-
-              echo "🚀 Iniciando deploy do frontend..."
-
-              # 1. Entra na pasta do repositório em root
-              cd ../front
-
+              TARGET_PATH="/var/www/drivewise.jadson.cloud"
+             
+              echo "📂 Entrando no repositório..."
+              cd $REPO_PATH || { echo "Erro: Pasta do repositório não encontrada"; exit 1; }
+            
               git pull origin main
-
-              echo "📦 Instalando dependências e gerando Build..."
               npm install
               npm run build
-
-              echo "🚚 Substituindo a pasta dist em /var/www..."
+            
+              echo "🚚 Organizando pasta de produção..."
+              # Garante que a pasta pai (/var/www) existe
+              sudo mkdir -p /var/www
+            
+              # Em vez de apagar a pasta toda, vamos limpar o CONTEÚDO dela
+              # Isso evita erros de permissão no diretório pai
+              sudo mkdir -p $TARGET_PATH
+              sudo rm -rf $TARGET_PATH/*
               
-              # Remove a pasta antiga em /var/www para não acumular arquivos mortos
-              sudo rm -rf $PUBLIC_PATH
-              
-              # Move a pasta dist recém-criada para o local definitivo
-              # Usamos o 'cp -r' seguido de 'rm' ou apenas 'mv' se o disco permitir
-              sudo cp -r dist $PUBLIC_PATH
-
-              echo "🔐 Ajustando permissões para o Nginx..."
-              sudo chown -R www-data:www-data $PUBLIC_PATH
-              sudo chmod -R 755 $PUBLIC_PATH
-
-              echo "✅ Deploy finalizado: pasta dist movida para $PUBLIC_PATH"
+              # Copia o CONTEÚDO da dist para dentro do target
+              sudo cp -r dist/* $TARGET_PATH/
+            
+              echo "🔐 Permissões e Nginx..."
+              sudo chown -R www-data:www-data $TARGET_PATH
+              sudo nginx -t && sudo systemctl restart nginx
