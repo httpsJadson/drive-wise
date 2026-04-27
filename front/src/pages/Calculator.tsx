@@ -21,10 +21,10 @@ export function Calculator() {
   // Define os pontos de ancoragem para o painel
   const getAnchors = () => {
     const sheetH = sheetHeight.current;
-    const responsiveCollapsedHeight = window.innerHeight * 0.06; // 30% da tela
+    const responsiveCollapsedHeight = window.innerHeight * 0.30; // 30% da tela
     return {
       full: 0, // Totalmente visível
-      half: sheetH * 0.60, // Metade visível
+      half: sheetH * 0.70, // Metade visível
       collapsed: sheetH - responsiveCollapsedHeight, // Apenas a "drag bar" visível
     };
   };
