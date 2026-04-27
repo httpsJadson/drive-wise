@@ -23,9 +23,9 @@ export function Calculator() {
     const sheetH = sheetHeight.current;
     // const responsiveCollapsedHeight = window.innerHeight * 0.30; // 30% da tela
     return {
-      full: sheetH * 0.35, // Totalmente visível
-      half: sheetH * 0.35, // Metade visível
-      collapsed: sheetH * 0.35, // Apenas a "drag bar" visível
+      full: sheetH * 0.45, // Totalmente visível
+      half: sheetH * 0.45, // Metade visível
+      collapsed: sheetH * 0.45, // Apenas a "drag bar" visível
     };
   };
 
