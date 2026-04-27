@@ -18,37 +18,45 @@ export function Calculator() {
 
   const { calculate, isLoading, error, data: calculationResult, setData: setCalculationResult } = useFuelCalculate();
 
+  // Define os pontos de ancoragem para o painel
   const getAnchors = () => {
-    const h = sheetHeight.current;
-    // Usamos 12% da altura da tela (viewport height) para um valor responsivo.
-    const responsiveCollapsedHeight = window.innerHeight * 0.05; 
+    const sheetH = sheetHeight.current;
+    const responsiveCollapsedHeight = window.innerHeight * 0.06; // 30% da tela
     return {
-      full: 0,                           
-      half: h * 0.4,                       
-      collapsed: h - responsiveCollapsedHeight    
+      full: 0, // Totalmente visível
+      half: sheetH * 0.60, // Metade visível
+      collapsed: sheetH - responsiveCollapsedHeight, // Apenas a "drag bar" visível
     };
   };
 
+  // Efeito para inicializar e atualizar a altura do painel
   useEffect(() => {
-    if (sheetRef.current) {
-      sheetHeight.current = sheetRef.current.offsetHeight;
-      if (window.innerWidth < 768) {
-        const responsiveCollapsedHeight = window.innerHeight * 0.12;
-        // Reposiciona o painel para o estado colapsado sempre que o conteúdo mudar
-        setTranslateY(sheetHeight.current - responsiveCollapsedHeight);
+    const updateSheetHeight = () => {
+      if (sheetRef.current) {
+        sheetHeight.current = sheetRef.current.offsetHeight;
+        if (window.innerWidth < 768) { // Apenas em mobile
+          const anchors = getAnchors();
+          setTranslateY(anchors.collapsed);
+        }
       }
-    }
-  }, [calculationResult]); // A dependência garante que o efeito rode novamente quando o resultado do cálculo mudar
+    };
+
+    updateSheetHeight();
+
+    // Recalcula a altura se o conteúdo mudar (formulário -> resultado)
+    // Um pequeno delay ajuda a garantir que o DOM foi atualizado
+    const timeoutId = setTimeout(updateSheetHeight, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [calculationResult]);
 
   const handleCalculateRoute = async (data: { origem: string, destino: string, selectedVehicleId: number | null }) => {
-    // Gera a URL do mapa para o iframe
     if (data.origem && data.destino) {
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       const url = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(data.origem)}&destination=${encodeURIComponent(data.destino)}`;
       setMapUrl(url);
     }
 
-    // Faz a chamada para a API de cálculo de combustível
     if (data.origem && data.destino && data.selectedVehicleId !== null) {
       await calculate({
         from: data.origem,
@@ -56,13 +64,13 @@ export function Calculator() {
         vehicle: data.selectedVehicleId
       });
     } else {
-      console.warn("Dados insuficientes para calcular o custo da rota. Verifique se todos os campos foram preenchidos.");
+      console.warn("Dados insuficientes para calcular.");
     }
   };
 
   const handleRecalculate = () => {
     setCalculationResult(null);
-    setMapUrl(null); // Opcional: limpar o mapa também
+    setMapUrl(null);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -82,6 +90,7 @@ export function Calculator() {
     const newTranslate = currentTranslateY.current + deltaY;
 
     const anchors = getAnchors();
+    // Permite arrastar apenas dentro dos limites (totalmente aberto e recolhido)
     if (newTranslate >= anchors.full && newTranslate <= anchors.collapsed) {
       setTranslateY(newTranslate);
     }
@@ -91,6 +100,7 @@ export function Calculator() {
     setIsDragging(false);
     const anchors = getAnchors();
 
+    // Encontra o ponto de ancoragem mais próximo
     const distances = [
       { point: anchors.full, dist: Math.abs(translateY - anchors.full) },
       { point: anchors.half, dist: Math.abs(translateY - anchors.half) },
@@ -98,16 +108,14 @@ export function Calculator() {
     ];
 
     distances.sort((a, b) => a.dist - b.dist);
-    setTranslateY(distances[0].point);
+    setTranslateY(distances[0].point); // Anima para o ponto mais próximo
   };
 
+  // Alterna entre os estados com um clique na drag-bar
   const handleToggle = () => {
     const anchors = getAnchors();
-    
-    if (translateY >= anchors.collapsed - 10) { 
+    if (Math.abs(translateY - anchors.collapsed) < 10) {
       setTranslateY(anchors.half);
-    } else if (translateY >= anchors.half - 10) {
-      setTranslateY(anchors.full);
     } else {
       setTranslateY(anchors.collapsed);
     }
@@ -120,6 +128,7 @@ export function Calculator() {
       <main className="grow relative overflow-hidden">
         <MapContainer zoom={14} height="100%" mapUrl={mapUrl} />
 
+        {/* Container do Painel Arrastável */}
         <div className="absolute inset-0 z-10 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4 md:items-center">
           <div 
             ref={sheetRef}
@@ -127,6 +136,7 @@ export function Calculator() {
               ${isDragging ? '' : 'transition-transform duration-300 ease-out'}
             `}
             style={{ 
+              // Em mobile, a altura é 100% e a posição é controlada pelo `transform`
               height: window.innerWidth < 768 ? '100%' : 'auto',
               transform: window.innerWidth < 768 ? `translateY(${translateY}px)` : undefined 
             }}
