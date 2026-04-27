@@ -6,8 +6,6 @@ import { useFuelCalculate } from '../hooks/useFuelCalculate';
 import { CalculationResult } from '../components/CalculationResult';
 import type { FuelCalculateResponse } from '../types/fuelCalculate';
 
-const COLLAPSED_HEIGHT = -230; // Altura visível quando o painel está recolhido
-
 export function Calculator() {
   const [mapUrl, setMapUrl] = useState<string | null>(null);
   const [translateY, setTranslateY] = useState(0);
@@ -22,10 +20,12 @@ export function Calculator() {
 
   const getAnchors = () => {
     const h = sheetHeight.current;
+    // Usamos 12% da altura da tela (viewport height) para um valor responsivo.
+    const responsiveCollapsedHeight = window.innerHeight * 0.05; 
     return {
       full: 0,                           
-      half: h * 0.78,                       
-      collapsed: h - COLLAPSED_HEIGHT    
+      half: h * 0.4,                       
+      collapsed: h - responsiveCollapsedHeight    
     };
   };
 
@@ -33,10 +33,12 @@ export function Calculator() {
     if (sheetRef.current) {
       sheetHeight.current = sheetRef.current.offsetHeight;
       if (window.innerWidth < 768) {
-        setTranslateY(sheetHeight.current - COLLAPSED_HEIGHT);
+        const responsiveCollapsedHeight = window.innerHeight * 0.12;
+        // Reposiciona o painel para o estado colapsado sempre que o conteúdo mudar
+        setTranslateY(sheetHeight.current - responsiveCollapsedHeight);
       }
     }
-  }, []);
+  }, [calculationResult]); // A dependência garante que o efeito rode novamente quando o resultado do cálculo mudar
 
   const handleCalculateRoute = async (data: { origem: string, destino: string, selectedVehicleId: number | null }) => {
     // Gera a URL do mapa para o iframe
