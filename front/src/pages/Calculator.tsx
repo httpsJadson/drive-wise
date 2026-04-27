@@ -21,11 +21,11 @@ export function Calculator() {
   // Define os pontos de ancoragem para o painel
   const getAnchors = () => {
     const sheetH = sheetHeight.current;
-    const responsiveCollapsedHeight = window.innerHeight * 0.30; // 30% da tela
+    // const responsiveCollapsedHeight = window.innerHeight * 0.30; // 30% da tela
     return {
-      full: 0, // Totalmente visível
-      half: sheetH * 0.70, // Metade visível
-      collapsed: sheetH - responsiveCollapsedHeight, // Apenas a "drag bar" visível
+      full: sheetH * 0.35, // Totalmente visível
+      half: sheetH * 0.35, // Metade visível
+      collapsed: sheetH * 0.35, // Apenas a "drag bar" visível
     };
   };
 
@@ -85,6 +85,10 @@ export function Calculator() {
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     
+    if (e.cancelable) {
+      e.preventDefault(); // Opcional, dependendo da versão do React
+    }
+
     const touchY = e.touches[0].clientY;
     const deltaY = touchY - startY.current;
     const newTranslate = currentTranslateY.current + deltaY;
@@ -112,14 +116,14 @@ export function Calculator() {
   };
 
   // Alterna entre os estados com um clique na drag-bar
-  const handleToggle = () => {
-    const anchors = getAnchors();
-    if (Math.abs(translateY - anchors.collapsed) < 10) {
-      setTranslateY(anchors.half);
-    } else {
-      setTranslateY(anchors.collapsed);
-    }
-  };
+  // const handleToggle = () => {
+  //   const anchors = getAnchors();
+  //   if (Math.abs(translateY - anchors.collapsed) < 10) {
+  //     setTranslateY(anchors.half);
+  //   } else {
+  //     setTranslateY(anchors.collapsed);
+  //   }
+  // };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -132,20 +136,21 @@ export function Calculator() {
         <div className="absolute inset-0 z-10 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4 md:items-center">
           <div 
             ref={sheetRef}
-            className={`pointer-events-auto w-full max-w-md absolute bottom-0 md:relative md:bottom-auto transform
+            className={`pointer-events-auto w-full max-w-md absolute bottom-0 md:relative md:bottom-auto transform 
+              overscroll-contain touch-none
               ${isDragging ? '' : 'transition-transform duration-300 ease-out'}
             `}
             style={{ 
-              // Em mobile, a altura é 100% e a posição é controlada pelo `transform`
               height: window.innerWidth < 768 ? '100%' : 'auto',
-              transform: window.innerWidth < 768 ? `translateY(${translateY}px)` : undefined 
+              transform: window.innerWidth < 768 ? `translateY(${translateY}px)` : undefined,
+              // Usamos touchAction: 'none' apenas quando estamos arrastando para não quebrar o scroll interno do form
+              touchAction: isDragging ? 'none' : 'pan-y'
             }}
           >
             {calculationResult ? (
               <CalculationResult 
                 data={calculationResult as FuelCalculateResponse} 
-                onRecalculate={handleRecalculate}
-                onToggle={handleToggle}
+                onRecalculate={handleRecalculate}     
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -153,7 +158,6 @@ export function Calculator() {
             ) : (
               <CalculatorForm 
                 onSubmit={handleCalculateRoute}
-                onToggle={handleToggle}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}

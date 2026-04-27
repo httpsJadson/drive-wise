@@ -3,7 +3,6 @@ import type { FuelCalculateResponse } from '../types/fuelCalculate';
 interface CalculationResultProps {
   data: FuelCalculateResponse;
   onRecalculate: () => void;
-  onToggle?: () => void;
   onTouchStart?: (e: React.TouchEvent) => void;
   onTouchMove?: (e: React.TouchEvent) => void;
   onTouchEnd?: () => void;
@@ -26,7 +25,6 @@ const formatCurrency = (value: number): string => {
 export function CalculationResult({ 
   data, 
   onRecalculate,
-  onToggle,
   onTouchStart,
   onTouchMove,
   onTouchEnd 
@@ -35,15 +33,16 @@ export function CalculationResult({
   const fuelTypes = Object.keys(data).filter(key => key !== 'distance') as (keyof Omit<FuelCalculateResponse, 'distance'>)[];
 
   return (
-    <div className="flex flex-col w-full bg-white/80 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg overflow-auto animate-fade-in">
+    <div 
+      className="flex flex-col w-full bg-white/80 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg overflow-auto animate-fade-in"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Barra de arraste visual - Apenas Mobile */}
       <div 
         className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
         id="drag-bar"
-        onClick={onToggle}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
       >
         <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
       </div>
