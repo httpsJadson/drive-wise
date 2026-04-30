@@ -113,21 +113,19 @@ export function Calculator() {
               touchAction: 'none', 
               transform: window.innerWidth > 768 ? `translateY(30%)` : `translateY(${translateY}px)`,
             }}
-            // Eventos de toque continuam aqui, mas agora só dispararão 
-            // se o usuário tocar em algo com 'pointer-events-auto' dentro desta div
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
             {/* ÁREA VISUAL BRANCA: Aqui reativamos o toque */}
-            <div className="pointer-events-auto w-full h-full bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div className={`pointer-events-auto w-full h-full ${window.innerWidth > 768 ? 'md:h-auto rounded-2xl' : 'h-full'}  bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl flex flex-col overflow-hidden`}>
               
               {/* Barra de arraste */}
-              <div className="w-full h-14 flex items-center justify-center shrink-0 cursor-grab">
+              <div className="flex md:hidden w-full h-14 items-center justify-center shrink-0 cursor-grab">
                 <div className="w-12 h-1.5 bg-gray-400 rounded-full" />
               </div>
 
-              <div className="flex-1 overflow-y-auto px-6 pb-20">
+              <div className="flex-1 overflow-y-auto pt-0 px-8 md:py-8 pb-20 ">
                 {calculationResult ? (
                   <CalculationResult data={calculationResult as FuelCalculateResponse} onRecalculate={handleRecalculate} />
                 ) : (
