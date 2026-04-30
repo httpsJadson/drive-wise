@@ -20,13 +20,13 @@ export function Calculator() {
   const { calculate, isLoading, error, data: calculationResult, setData: setCalculationResult } = useFuelCalculate();
 
   const getAnchors = useCallback(() => {
-  const windowH = window.innerHeight;
-  return {
-    full: 0, 
-    half: windowH - formH, 
-    collapsed: windowH * 0.75
-  };
-}, [calculationResult]);
+    const windowH = window.innerHeight;
+    return {
+      full: 0, 
+      half: windowH - formH, 
+      collapsed: windowH * 0.80
+    };
+  }, [calculationResult]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,16 +61,12 @@ export function Calculator() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    
-
     startY.current = e.touches[0].clientY;
     currentTranslateY.current = translateY;
     setIsDragging(true);
   };
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    //e.preventDefault();
-
     const touchY = e.touches[0].clientY;
     const deltaY = touchY - startY.current;
     const newTranslate = currentTranslateY.current + deltaY;
@@ -100,49 +96,49 @@ export function Calculator() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden" >
       <Header />
-
-      <main className="grow relative overflow-hidden">
-        <MapContainer zoom={14} height={window.innerWidth > 768 ? '100vh' : '80vh'} mapUrl={mapUrl} />
-
-        {/* Container Pai: agora com h-full para garantir que a área de toque exista em toda a tela */}
+      
+      <main className="grow relative overflow-hidden" style={{ overscrollBehaviorY: 'contain' }}>
+        {/* Container Pai: Ocupa a tela toda, mas não bloqueia o mapa */}
         <div className="absolute inset-0 z-99 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4">
           <div 
             ref={sheetRef}
-            className={`pointer-events-auto w-full max-w-md absolute top-0 ...`}
+            className={`w-full max-w-md absolute top-0 
+              ${isDragging ? '' : 'transition-transform duration-300 ease-out'}
+              pointer-events-none 
+            `}
             style={{ 
-              
+              height: '100vh', 
               touchAction: 'none', 
               transform: window.innerWidth > 768 ? `translateY(30%)` : `translateY(${translateY}px)`,
-              zIndex: 100
             }}
+            // Eventos de toque continuam aqui, mas agora só dispararão 
+            // se o usuário tocar em algo com 'pointer-events-auto' dentro desta div
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="w-full h-full bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden" >
-              {calculationResult ? (
-                <CalculationResult 
-                  data={calculationResult as FuelCalculateResponse} 
-                  onRecalculate={handleRecalculate}   
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}  
-                  onTouchEnd={handleTouchEnd}
-                />
-              ) : (
-                <CalculatorForm 
-                  onSubmit={handleCalculateRoute}
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  isLoading={isLoading}
-                  error={error}
-                />
-              )}
+            {/* ÁREA VISUAL BRANCA: Aqui reativamos o toque */}
+            <div className="pointer-events-auto w-full h-full bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl flex flex-col overflow-hidden">
+              
+              {/* Barra de arraste */}
+              <div className="w-full h-14 flex items-center justify-center shrink-0 cursor-grab">
+                <div className="w-12 h-1.5 bg-gray-400 rounded-full" />
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 pb-20">
+                {calculationResult ? (
+                  <CalculationResult data={calculationResult as FuelCalculateResponse} onRecalculate={handleRecalculate} />
+                ) : (
+                  <CalculatorForm onSubmit={handleCalculateRoute} isLoading={isLoading} error={error} />
+                )}
+              </div>
             </div>
           </div>
         </div>
+        
+        <MapContainer zoom={14} height={window.innerWidth > 768 ? '100vh' : '90%'} mapUrl={mapUrl} />
       </main>
     </div>
   );
