@@ -28,7 +28,7 @@ export function CalculatorForm({
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 p-6 md:p-8 pt-0 md:pt-8"
+        className="flex flex-col gap-6"
       >
         <div className="mb-2">
           <h1 className="text-2xl font-bold text-gray-800">Para onde vamos?</h1>
