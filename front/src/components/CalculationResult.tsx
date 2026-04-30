@@ -10,8 +10,11 @@ interface CalculationResultProps {
 
 // Função para formatar a duração de segundos para "X min"
 const formatDuration = (seconds: number): string => {
-  const minutes = Math.round(seconds / 60);
-  return `${minutes} min`;
+  const horas = Math.floor(seconds / 3600);
+  const minutos = Math.floor((seconds % 3600) / 60);
+  const segs = seconds % 60;
+
+  return `${String(horas).padStart(2, '0')}h ${String(minutos).padStart(2, '0')}min ${String(segs).padStart(2, '0')}seg`;
 };
 
 // Função para formatar valores monetários para o padrão brasileiro
@@ -34,15 +37,16 @@ export function CalculationResult({
 
   return (
     <div 
-      className="flex flex-col w-full bg-white/80 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg overflow-auto animate-fade-in"
+      className="flex flex-col w-full bg-white/80 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg  animate-fade-in"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Barra de arraste visual - Apenas Mobile */}
+      {/* Barra de arraste visual - Aumente o padding vertical aqui */}
       <div 
-        className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
+        className="md:hidden w-full flex justify-center py-6 cursor-grab active:cursor-grabbing" // Aumentado de py-4 para py-6
         id="drag-bar"
+        style={{ touchAction: 'none' }}
       >
         <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
       </div>
