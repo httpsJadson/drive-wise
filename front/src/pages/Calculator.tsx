@@ -104,7 +104,7 @@ export function Calculator() {
       <Header />
 
       <main className="grow relative overflow-hidden">
-        <MapContainer zoom={14} height='80vh' mapUrl={mapUrl} />
+        <MapContainer zoom={14} height={window.innerWidth > 768 ? '100vh' : '80vh'} mapUrl={mapUrl} />
 
         {/* Container Pai: agora com h-full para garantir que a área de toque exista em toda a tela */}
         <div className="absolute inset-0 z-99 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4">
@@ -112,20 +112,16 @@ export function Calculator() {
             ref={sheetRef}
             className={`pointer-events-auto w-full max-w-md absolute top-0 ...`}
             style={{ 
-              height: '100%', // Altura do papel (sheet)
+              
               touchAction: 'none', 
-              transform: `translateY(${translateY}px)`,
+              transform: window.innerWidth > 768 ? `translateY(30%)` : `translateY(${translateY}px)`,
               zIndex: 100
             }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Esta div interna é o seu painel real. 
-              Como o pai é top-0 e 100vh, o translateY agora move a estrutura toda
-              de forma muito mais estável para o navegador.
-            */}
-            <div className="w-full h-full bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl overflow-hidden">
+            <div className="w-full h-full bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden" >
               {calculationResult ? (
                 <CalculationResult 
                   data={calculationResult as FuelCalculateResponse} 

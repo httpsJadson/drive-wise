@@ -31,7 +31,10 @@ export function CalculatorForm({
 
   return (
     <div 
-      className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg"
+      className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-3xl shadow-lg"
+      style={{ 
+        height: window.innerWidth > 768 ? '430px' : '100vh', // Altura do papel (sheet)
+      }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
