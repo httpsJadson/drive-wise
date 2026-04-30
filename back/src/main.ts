@@ -5,8 +5,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Configurar CORS para aceitar requisições do frontend
   app.enableCors({
     origin: [
       process.env.FRONT_END_URL,
@@ -24,6 +22,8 @@ async function bootstrap() {
       transform: false,
     }),
   );
+
+  app.getHttpAdapter().getInstance().set('trust proxy', true);
 
   const config = new DocumentBuilder()
     .setTitle('DriveWise: Dirija com sabedoria')
