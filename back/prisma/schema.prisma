@@ -8,26 +8,33 @@ datasource db {
 }
 
 model Vehicle {
-  id Int @id @default(autoincrement())
-
-  fullName String? @unique
-  brand    String
-  model    String
-  version  String?
-  year     Int
-  category Category
-
+  id               Int      @id @default(autoincrement())
+  brand            String
+  model            String
+  version          String?
+  year             Int
+  category         Category
   consumptionCityG Float?
   consumptionHwyG  Float?
   consumptionCityE Float?
   consumptionHwyE  Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   consumptionCityD Float?
   consumptionHwyD  Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  fullName         String?
 
   @@index([brand, model])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  jobRole   JobRole
 }
 
 enum Category {
@@ -39,16 +46,6 @@ enum Category {
   VAN
   ELECTRIC
   MOTO
-}
-
-model User {
-  id        String   @id @default(uuid())
-  username  String
-  email     String   @unique
-  password  String
-  jobRole   JobRole
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 enum JobRole {
