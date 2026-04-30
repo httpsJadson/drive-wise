@@ -23,7 +23,8 @@ async function bootstrap() {
     }),
   );
 
-  app.getHttpAdapter().getInstance().set('trust proxy', true);
+  const server = app.getHttpAdapter().getInstance();
+  server.set('trust proxy', 1);
 
   const config = new DocumentBuilder()
     .setTitle('DriveWise: Dirija com sabedoria')
