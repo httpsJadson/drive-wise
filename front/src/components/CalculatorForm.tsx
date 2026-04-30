@@ -3,18 +3,12 @@ import { VehicleSelect } from './VehicleSelect';
 
 interface CalculatorFormProps {
   onSubmit?: (data: any) => void;
-  onTouchStart?: (e: React.TouchEvent) => void;
-  onTouchMove?: (e: React.TouchEvent) => void;
-  onTouchEnd?: () => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
 export function CalculatorForm({ 
   onSubmit, 
-  onTouchStart,
-  onTouchMove,
-  onTouchEnd,
   isLoading = false,
   error = null
 }: CalculatorFormProps) {
@@ -30,20 +24,7 @@ export function CalculatorForm({
   };
 
   return (
-    <div 
-      className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Barra de arraste visual - Apenas Mobile */}
-      <div 
-        className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
-        id="drag-bar"
-        style={{ touchAction: 'none' }}
-      >
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-      </div>
+    <div className="flex flex-col w-full h-full md:h-auto">
 
       <form
         onSubmit={handleSubmit}

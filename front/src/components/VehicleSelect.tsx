@@ -79,7 +79,7 @@ export function VehicleSelect({ onSelect }: VehicleSelectProps) {
         placeholder="Digite o modelo do carro (ex: Toyota Corolla Cross)"
         value={searchTerm}
         name='vehicle'
-        id={selectedVehicleId?.toString()} // O ID fica invisível aqui no HTML, mas atrelado ao input
+        id={selectedVehicleId?.toString() || '689'} // O ID fica invisível aqui no HTML, mas atrelado ao input
         onChange={(e) => {
           setSearchTerm(e.target.value);
           // Se o usuário apagar o texto, limpa o ID do veículo selecionado anteriormente

@@ -3,9 +3,6 @@ import type { FuelCalculateResponse } from '../types/fuelCalculate';
 interface CalculationResultProps {
   data: FuelCalculateResponse;
   onRecalculate: () => void;
-  onTouchStart?: (e: React.TouchEvent) => void;
-  onTouchMove?: (e: React.TouchEvent) => void;
-  onTouchEnd?: () => void;
 }
 
 // Função para formatar a duração de segundos para "X min"
@@ -28,28 +25,11 @@ const formatCurrency = (value: number): string => {
 export function CalculationResult({ 
   data, 
   onRecalculate,
-  onTouchStart,
-  onTouchMove,
-  onTouchEnd 
 }: CalculationResultProps) {
-  // Extrai os tipos de combustível disponíveis na resposta, exceto 'distance'
   const fuelTypes = Object.keys(data).filter(key => key !== 'distance') as (keyof Omit<FuelCalculateResponse, 'distance'>)[];
 
   return (
-    <div 
-      className="flex flex-col w-full bg-white/80 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg  animate-fade-in"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Barra de arraste visual - Aumente o padding vertical aqui */}
-      <div 
-        className="md:hidden w-full flex justify-center py-6 cursor-grab active:cursor-grabbing" // Aumentado de py-4 para py-6
-        id="drag-bar"
-        style={{ touchAction: 'none' }}
-      >
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-      </div>
+    <div className="flex flex-col w-full md:h-auto animate-fade-in">
 
       <div className="p-6 pt-0 md:pt-6">
         <div className="mb-4">
