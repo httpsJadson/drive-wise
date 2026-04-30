@@ -4,12 +4,12 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FuelCalculateModule } from './fuel-calculate/fuel-calculate.module';
 import { ThrottlerModule } from '@nestjs/throttler/dist/throttler.module';
-import { DebugIpModule } from './debug-ip/debug-ip.module';
+// import { DebugIpModule } from './debug-ip/debug-ip.module';
 
 @Module({
   imports: [
     VehiclesModule,
-    DebugIpModule, 
+    // DebugIpModule, 
     UsersModule, 
     AuthModule, 
     ThrottlerModule.forRoot([{
