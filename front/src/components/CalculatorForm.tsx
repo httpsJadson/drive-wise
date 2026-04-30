@@ -31,7 +31,7 @@ export function CalculatorForm({
 
   return (
     <div 
-      className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg overflow-hidden"
+      className="flex flex-col w-full bg-white/75 backdrop-blur-lg h-full md:h-auto rounded-lg shadow-lg"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -40,6 +40,7 @@ export function CalculatorForm({
       <div 
         className="md:hidden w-full flex justify-center py-4 cursor-grab active:cursor-grabbing" 
         id="drag-bar"
+        style={{ touchAction: 'none' }}
       >
         <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
       </div>

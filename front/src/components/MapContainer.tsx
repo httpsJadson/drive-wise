@@ -72,7 +72,7 @@ function MapContainerComponent({
       <iframe
         src={mapUrl}
         width="100%"
-        height="100%"
+        height={height}
         style={{ border: 0 }}
         allowFullScreen={true}
         loading="lazy"

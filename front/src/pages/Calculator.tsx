@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Header } from '../components/Header';
 import { MapContainer } from '../components/MapContainer';
 import { CalculatorForm } from '../components/CalculatorForm';
@@ -6,49 +6,36 @@ import { useFuelCalculate } from '../hooks/useFuelCalculate';
 import { CalculationResult } from '../components/CalculationResult';
 import type { FuelCalculateResponse } from '../types/fuelCalculate';
 
+const formH = 570;
+
 export function Calculator() {
   const [mapUrl, setMapUrl] = useState<string | null>(null);
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   
   const startY = useRef(0);
-  const currentTranslateY = useRef(0); 
-  const sheetHeight = useRef(0);
+  const currentTranslateY = useRef(0);
   const sheetRef = useRef<HTMLDivElement>(null);
 
   const { calculate, isLoading, error, data: calculationResult, setData: setCalculationResult } = useFuelCalculate();
 
-  // Define os pontos de ancoragem para o painel
-  const getAnchors = () => {
-    const sheetH = sheetHeight.current;
-    // const responsiveCollapsedHeight = window.innerHeight * 0.30; // 30% da tela
-    return {
-      full: sheetH * 0.45, // Totalmente visível
-      half: sheetH * 0.45, // Metade visível
-      collapsed: sheetH * 0.45, // Apenas a "drag bar" visível
-    };
+  const getAnchors = useCallback(() => {
+  const windowH = window.innerHeight;
+  return {
+    full: 0, 
+    half: windowH - formH, 
+    collapsed: windowH * 0.75
   };
+}, [calculationResult]);
 
-  // Efeito para inicializar e atualizar a altura do painel
   useEffect(() => {
-    const updateSheetHeight = () => {
-      if (sheetRef.current) {
-        sheetHeight.current = sheetRef.current.offsetHeight;
-        if (window.innerWidth < 768) { // Apenas em mobile
-          const anchors = getAnchors();
-          setTranslateY(anchors.collapsed);
-        }
-      }
-    };
+    const timer = setTimeout(() => {
+      const windowH = window.innerHeight;
+      setTranslateY(windowH - formH); 
+    }, 100);
 
-    updateSheetHeight();
-
-    // Recalcula a altura se o conteúdo mudar (formulário -> resultado)
-    // Um pequeno delay ajuda a garantir que o DOM foi atualizado
-    const timeoutId = setTimeout(updateSheetHeight, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [calculationResult]);
+    return () => clearTimeout(timer);
+  }, [calculationResult]); 
 
   const handleCalculateRoute = async (data: { origem: string, destino: string, selectedVehicleId: number | null }) => {
     if (data.origem && data.destino) {
@@ -74,31 +61,28 @@ export function Calculator() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest("#drag-bar")) return;
+    
 
     startY.current = e.touches[0].clientY;
     currentTranslateY.current = translateY;
     setIsDragging(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    
-    if (e.cancelable) {
-      e.preventDefault(); // Opcional, dependendo da versão do React
-    }
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    //e.preventDefault();
 
     const touchY = e.touches[0].clientY;
     const deltaY = touchY - startY.current;
     const newTranslate = currentTranslateY.current + deltaY;
 
     const anchors = getAnchors();
-    // Permite arrastar apenas dentro dos limites (totalmente aberto e recolhido)
-    if (newTranslate >= anchors.full && newTranslate <= anchors.collapsed) {
+    const minTranslate = anchors.full;
+    const maxTranslate = anchors.collapsed;
+
+    if (newTranslate >= minTranslate && newTranslate <= maxTranslate) {
       setTranslateY(newTranslate);
     }
-  };
+  }, [isDragging, getAnchors]);
 
   const handleTouchEnd = () => {
     setIsDragging(false);
@@ -115,56 +99,52 @@ export function Calculator() {
     setTranslateY(distances[0].point); // Anima para o ponto mais próximo
   };
 
-  // Alterna entre os estados com um clique na drag-bar
-  // const handleToggle = () => {
-  //   const anchors = getAnchors();
-  //   if (Math.abs(translateY - anchors.collapsed) < 10) {
-  //     setTranslateY(anchors.half);
-  //   } else {
-  //     setTranslateY(anchors.collapsed);
-  //   }
-  // };
-
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <Header />
 
       <main className="grow relative overflow-hidden">
-        <MapContainer zoom={14} height="100%" mapUrl={mapUrl} />
+        <MapContainer zoom={14} height='80vh' mapUrl={mapUrl} />
 
-        {/* Container do Painel Arrastável */}
-        <div className="absolute inset-0 z-10 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4 md:items-center">
+        {/* Container Pai: agora com h-full para garantir que a área de toque exista em toda a tela */}
+        <div className="absolute inset-0 z-99 pointer-events-none flex justify-center md:justify-start md:pl-20 md:p-4">
           <div 
             ref={sheetRef}
-            className={`pointer-events-auto w-full max-w-md absolute bottom-0 md:relative md:bottom-auto transform 
-              overscroll-contain touch-none
-              ${isDragging ? '' : 'transition-transform duration-300 ease-out'}
-            `}
+            className={`pointer-events-auto w-full max-w-md absolute top-0 ...`}
             style={{ 
-              height: window.innerWidth < 768 ? '100%' : 'auto',
-              transform: window.innerWidth < 768 ? `translateY(${translateY}px)` : undefined,
-              // Usamos touchAction: 'none' apenas quando estamos arrastando para não quebrar o scroll interno do form
-              touchAction: isDragging ? 'none' : 'pan-y'
+              height: '100%', // Altura do papel (sheet)
+              touchAction: 'none', 
+              transform: `translateY(${translateY}px)`,
+              zIndex: 100
             }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            {calculationResult ? (
-              <CalculationResult 
-                data={calculationResult as FuelCalculateResponse} 
-                onRecalculate={handleRecalculate}     
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              />
-            ) : (
-              <CalculatorForm 
-                onSubmit={handleCalculateRoute}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                isLoading={isLoading}
-                error={error}
-              />
-            )}
+            {/* Esta div interna é o seu painel real. 
+              Como o pai é top-0 e 100vh, o translateY agora move a estrutura toda
+              de forma muito mais estável para o navegador.
+            */}
+            <div className="w-full h-full bg-white/80 backdrop-blur-lg rounded-t-2xl shadow-2xl overflow-hidden">
+              {calculationResult ? (
+                <CalculationResult 
+                  data={calculationResult as FuelCalculateResponse} 
+                  onRecalculate={handleRecalculate}   
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}  
+                  onTouchEnd={handleTouchEnd}
+                />
+              ) : (
+                <CalculatorForm 
+                  onSubmit={handleCalculateRoute}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  isLoading={isLoading}
+                  error={error}
+                />
+              )}
+            </div>
           </div>
         </div>
       </main>
