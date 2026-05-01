@@ -5,6 +5,6 @@ import { type FuelCalculate } from '../types/fuelCalculate';
 export const FuelCalculateService = {
 
   calculate: async (fuelCalculate: FuelCalculate): Promise<FuelCalculate> => {
-    return api.post<FuelCalculate>('/fuel-calculate/', fuelCalculate, false);
+    return api.post<FuelCalculate>('/fuel-calculate/', fuelCalculate, true);
   }
 };
