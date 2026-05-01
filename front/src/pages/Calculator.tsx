@@ -136,7 +136,7 @@ export function Calculator() {
           </div>
         </div>
         
-        <MapContainer zoom={14} height={window.innerWidth > 768 ? '100vh' : '90%'} mapUrl={mapUrl} />
+        <MapContainer zoom={14} height={window.innerWidth > 768 ? '100%' : '90%'} mapUrl={mapUrl} />
       </main>
     </div>
   );
