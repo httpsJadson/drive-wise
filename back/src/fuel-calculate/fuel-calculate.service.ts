@@ -4,7 +4,6 @@ import { CalculateConsumeTotal } from '../common/utils/fuelCalculate.utils';
 import { DistanceCalculate } from '../common/utils/distanceCalculate.utils';
 import { calculateMediaAutonomy } from '../common/utils/MediaAutonomy.utils';
 import { VehiclesService } from '../vehicles/vehicles.service';
-import { Vehicle } from '@prisma/client';
 
 
 @Injectable()
@@ -27,7 +26,7 @@ export class FuelCalculateService {
 
     const vehicle = await this.vehiclesService.findOne(Number(createFuelCalculateDto.vehicle));
 
-    const media = await calculateMediaAutonomy(vehicle);
+    const media = await calculateMediaAutonomy(vehicle?.consumption);
     return await CalculateConsumeTotal(distance.distance, prices, media); 
   }
 }

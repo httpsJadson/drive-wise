@@ -8,26 +8,24 @@ datasource db {
 }
 
 model Vehicle {
-  id               Int      @id @default(autoincrement())
-  brand            String
-  model            String
-  version          String?
-  year             Int
-  category         Category
-  consumptionCityG Float?
-  consumptionHwyG  Float?
-  consumptionCityE Float?
-  consumptionHwyE  Float?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  consumptionCityD Float?
-  consumptionHwyD  Float?
-  fullName         String?
+  id        Int      @id @default(autoincrement())
+  brand     String
+  model     String
+  version   String?
+  year      Int
+  category  Category
+  fullName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Atributo lógico da relação 1-para-1 (Opcional: um veículo pode ou não ter os dados de consumo cadastrados)
+  consumption Consumption?
 
   @@index([brand, model])
 }
-model consumption {
-  VehicleId        Int
+
+model Consumption {
+  id               Int      @id @default(autoincrement())
   consumptionCityG Float?
   consumptionHwyG  Float?
   consumptionCityE Float?
@@ -37,7 +35,14 @@ model consumption {
   consumptionCityW Float?
   consumptionHwyW  Float?
   createdAt        DateTime @default(now())
+
+  // 1. O campo físico no banco (Chave Estrangeira)
+  vehicleId        Int      @unique 
+  
+  // 2. O atributo lógico indicando a relação para o Prisma
+  vehicle          Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 }
+
 model User {
   id        String   @id @default(uuid())
   username  String

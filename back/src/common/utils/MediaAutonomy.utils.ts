@@ -1,4 +1,4 @@
-import { Vehicle } from "@prisma/client";
+import { Consumption } from "@prisma/client";
 
 export type AutonomyResponse = {
     consumtionMediaG?: number | null;
@@ -7,7 +7,7 @@ export type AutonomyResponse = {
 }
 
 export const calculateMediaAutonomy = async (
-  vehicle: Partial<Vehicle>, 
+  consumption: Partial<Consumption> | null | undefined,
 ): Promise<AutonomyResponse> => {
 
     const calc = (city: number | null | undefined, hwy: number | null | undefined): number | null => {     
@@ -16,8 +16,8 @@ export const calculateMediaAutonomy = async (
     };
 
     return {
-        consumtionMediaG: calc(vehicle.consumptionCityG, vehicle.consumptionHwyG),
-        consumtionMediaE: calc(vehicle.consumptionCityE, vehicle.consumptionHwyE),
-        consumtionMediaD: calc(vehicle.consumptionCityD, vehicle.consumptionHwyD),
+        consumtionMediaG: calc(consumption?.consumptionCityG, consumption?.consumptionHwyG),
+        consumtionMediaE: calc(consumption?.consumptionCityE, consumption?.consumptionHwyE),
+        consumtionMediaD: calc(consumption?.consumptionCityD, consumption?.consumptionHwyD),
     };
 }

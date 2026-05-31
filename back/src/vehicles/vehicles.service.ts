@@ -13,9 +13,7 @@ import { SearchVehicleDto } from '../common/dto/searchVehicle.dto';
 
 @Injectable()
 export class VehiclesService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   private readonly vehicleSelect = {
     id: true,
@@ -25,27 +23,24 @@ export class VehiclesService {
     version: true,
     year: true,
     category: true,
-    consumptionCityG: true,
-    consumptionHwyG: true,
-    consumptionCityE: true,
-    consumptionHwyE: true,
-    consumptionHwyD: true,
-    consumptionCityD: true,
   };
 
   private readonly logger = new Logger(VehiclesService.name);
 
   async create(createVehicleDto: CreateVehicleDto) {
     try {
-      const category = this.normalizeCategory(createVehicleDto.category as string);
-      const fullName = `${createVehicleDto.brand} ${createVehicleDto.model} ${createVehicleDto.version} ${createVehicleDto.year} ${category}`;
+      const { consumption, ...vehicleData } = createVehicleDto;
+      const category = this.normalizeCategory(vehicleData.category as string);
+      const fullName = `${vehicleData.brand} ${vehicleData.model} ${vehicleData.version} ${vehicleData.year} ${category}`;
+
       return await this.prismaService.vehicle.create({
         data: {
-          ...createVehicleDto,
+          ...vehicleData,
           fullName,
           category,
+          ...(consumption && { consumption: { create: consumption } }),
         },
-        select: this.vehicleSelect,
+        select: { ...this.vehicleSelect, consumption: true },
       });
     } catch (error) {
       this.handlePrismaError(error, 'create');
@@ -53,71 +48,51 @@ export class VehiclesService {
   }
 
   async findAll(query: SearchVehicleDto) {
-    const { 
-      search, 
-      category, 
-      year, 
-      page = 1, 
-      limit = 20, 
-      orderBy, 
+    const {
+      search,
+      category,
+      year,
+      page = 1,
+      limit = 20,
+      orderBy,
       orderDir = 'asc',
       noConsumption,
-      noFullName
+      noFullName,
     } = query;
 
     const skip = (page - 1) * limit;
-
-    // 1. Inicializamos o filtro básico
     const where: Prisma.VehicleWhereInput = { AND: [] };
 
-    // 2. Se houver pesquisa, busca no fullName independente da ordem das palavras
     if (search) {
-      const keywords = search.split(' ').filter(word => word.length > 0);
-      
-      // Cada palavra deve estar presente no fullName (independente da ordem)
-      keywords.forEach(word => {
+      const keywords = search.split(' ').filter((word) => word.length > 0);
+      keywords.forEach((word) => {
         (where.AND as Prisma.VehicleWhereInput[]).push({
           fullName: { contains: word, mode: 'insensitive' },
         });
       });
     }
 
-    // 3. Filtros fixos (se vierem de selects específicos no front)
     if (category) (where.AND as any).push({ category });
     if (year) (where.AND as any).push({ year });
 
-    // 4. Filtro para veículos sem consumo (todos os consumos nulos)
     if (noConsumption) {
-      (where.AND as Prisma.VehicleWhereInput[]).push({
-        AND: [
-          { consumptionCityG: null },
-          { consumptionHwyG: null },
-          { consumptionCityE: null },
-          { consumptionHwyE: null },
-          { consumptionCityD: null },
-          { consumptionHwyD: null },
-        ],
-      });
+      (where.AND as Prisma.VehicleWhereInput[]).push({ consumption: null });
     }
 
-    // 5. Filtro para veículos sem fullName
     if (noFullName) {
-      (where.AND as Prisma.VehicleWhereInput[]).push({
-        fullName: null,
-      });
+      (where.AND as Prisma.VehicleWhereInput[]).push({ fullName: null });
     }
 
-    // 6. Query no Banco
     const [data, total] = await Promise.all([
       this.prismaService.vehicle.findMany({
         where,
-        select: this.vehicleSelect,
+        select: { ...this.vehicleSelect, consumption: true },
         skip,
         take: limit,
         orderBy: search
           ? [{ fullName: 'asc' }]
-          : orderBy 
-            ? { [orderBy]: orderDir } 
+          : orderBy
+            ? { [orderBy]: orderDir }
             : [{ brand: 'asc' }, { model: 'asc' }],
       }),
       this.prismaService.vehicle.count({ where }),
@@ -137,7 +112,7 @@ export class VehiclesService {
     try {
       const vehicle = await this.prismaService.vehicle.findUnique({
         where: { id },
-        select: this.vehicleSelect,
+        select: { ...this.vehicleSelect, consumption: true },
       });
 
       if (!vehicle) {
@@ -152,10 +127,22 @@ export class VehiclesService {
 
   async update(id: number, updateVehicleDto: UpdateVehicleDto) {
     try {
+      const { consumption, ...vehicleData } = updateVehicleDto;
+
       return await this.prismaService.vehicle.update({
         where: { id },
-        data: updateVehicleDto,
-        select: this.vehicleSelect,
+        data: {
+          ...vehicleData,
+          ...(consumption && {
+            consumption: {
+              upsert: {
+                create: consumption,
+                update: consumption,
+              },
+            },
+          }),
+        },
+        select: { ...this.vehicleSelect, consumption: true },
       });
     } catch (error) {
       this.handlePrismaError(error, 'update');
@@ -164,9 +151,7 @@ export class VehiclesService {
 
   async remove(id: number) {
     try {
-      return await this.prismaService.vehicle.delete({
-        where: { id },
-      });
+      return await this.prismaService.vehicle.delete({ where: { id } });
     } catch (error) {
       this.handlePrismaError(error, 'remove');
     }
@@ -179,9 +164,7 @@ export class VehiclesService {
       return await this.prismaService.vehicle.deleteMany({
         where: {
           year,
-          category: {
-            not: normalizedCategory,
-          },
+          category: { not: normalizedCategory },
         },
       });
     } catch (error) {
@@ -227,16 +210,12 @@ export class VehiclesService {
       throw new InternalServerErrorException(error.message);
     }
 
-    if (error instanceof NotFoundException) {
-      throw error;
-    }
+    if (error instanceof NotFoundException) throw error;
 
     if (error instanceof Error) {
       throw new InternalServerErrorException(error.message);
     }
 
-    throw new InternalServerErrorException(
-      `Unexpected error on ${action}`,
-    );
+    throw new InternalServerErrorException(`Unexpected error on ${action}`);
   }
 }
